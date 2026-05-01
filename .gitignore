@@ -1,0 +1,15 @@
+
+# Build output
+/obj/
+/bin/
+/External/vcpkg_installed/
+
+# Visual Studio
+/.vs/
+/BliveClient.slnx
+/BliveClient.vcxproj.user
+/BliveClient.vcxproj.filters
+/BliveClient.vcxproj
+
+# User data
+/UserData/

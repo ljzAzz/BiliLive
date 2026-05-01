@@ -1,21 +1,10 @@
-[submodule "External/Boost"]
-	path = External/Boost
-	url = https://github.com/boostorg/boost.git
 [submodule "External/ImGui"]
 	path = External/ImGui
 	url = https://github.com/ocornut/imgui.git
-[submodule "External/nlohmann_json"]
-	path = External/nlohmann_json
-	url = https://github.com/nlohmann/json.git
-[submodule "External/FFmpeg"]
-	path = External/FFmpeg
-	url = https://gitee.com/mirrors/ffmpeg.git
-[submodule "External/Cpr"]
-	path = External/Cpr
-	url = https://github.com/libcpr/cpr.git
-[submodule "External/Cryptopp"]
-	path = External/Cryptopp
-	url = https://gitee.com/mirrors/cryptopp.git
+	branch = docking
 [submodule "External/Spdlog"]
 	path = External/Spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "External/vcpkg"]
+	path = External/vcpkg
+	url = https://gitee.com/mirrors/vcpkg.git

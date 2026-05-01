@@ -1,0 +1,11 @@
+{
+  "dependencies": [
+    "ffmpeg",
+    "boost",
+    "cpr",
+    "cryptopp",
+    "nlohmann-json",
+    "zlib",
+    "brotli"
+  ]
+}

@@ -46,10 +46,13 @@ bool App::OnRoomOpenEvent(Event* e)
 
 bool App::OnRoomCloseEvent(Event* e)
 {
+	auto ctr = static_cast<RoomCloseEvent*>(e);
+	auto uuid = ctr->GetUUID();
 	std::jthread([=] {
-		auto uuid = static_cast<RoomCloseEvent*>(e)->GetUUID();
 		auto room = MainUI::GetRenderLayer(uuid);
-		static_cast<LiveRoom*>(room.get())->Stop();
+		auto ptr = dynamic_cast<LiveRoom*>(room.get());
+		assert(ptr != nullptr && "LiveRoom is null pointer");
+		ptr->Stop();
 		Event* e = new RoomRemoveEvent(uuid);
 		EventDispatcher::Dispatch(e);
 		}).detach();

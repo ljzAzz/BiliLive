@@ -495,8 +495,8 @@ void LiveRoom::Start()
 
 	auto stopCb = [self = shared_from_this()](void*) {
 		std::call_once(self->m_stopFlag, [=]() {
-			//Event* e = new RoomCloseEvent(self->uuid);
-			//EventDispatcher::Dispatch(e);
+			Event* e = new RoomCloseEvent(self->uuid);
+			EventDispatcher::Dispatch(e);
 			});
 		};
 	m_playController->SetStopCallback(stopCb);
@@ -536,9 +536,11 @@ void LiveRoom::OnImGuiRender(bool fullScreen)
 		Render(fullScreen);
 	}
 	else {
-		m_running.store(false, std::memory_order_relaxed);
-		Event* e = new RoomCloseEvent(GetUUID());
-		EventDispatcher::Dispatch(e);
+		std::call_once(m_stopFlag, [=]() {
+			m_running.store(false, std::memory_order_relaxed);
+			Event* e = new RoomCloseEvent(uuid);
+			EventDispatcher::Dispatch(e);
+		});
 	}
 }
 

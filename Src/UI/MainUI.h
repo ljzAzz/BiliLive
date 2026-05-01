@@ -1,6 +1,7 @@
 #pragma once
 #include "RenderLayer.h"
 #include <Event/Event.h>
+#include <boost/uuid/uuid_hash.hpp>
 
 class MenuLayer :public RenderLayer {
 private:
@@ -92,7 +93,7 @@ public:
 class MainUI {
 private:
 	static inline ImGuiID s_dockingID;
-	static inline std::unordered_map<boost::uuids::uuid, std::shared_ptr<class RenderLayer>> s_renderLayers;
+	static inline std::unordered_map<std::string, std::shared_ptr<class RenderLayer>> s_renderLayers;
 	static inline bool s_buildDockingSpace;
 	static inline std::shared_ptr<class RenderLayer> s_pMenuLayer;
 private:

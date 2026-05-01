@@ -39,7 +39,7 @@ void MainUI::Init()
 	s_buildDockingSpace = true;
 	s_dockingID = 0;
 	s_pMenuLayer = std::shared_ptr<class RenderLayer>(new MenuLayer);
-	s_renderLayers.insert({ s_pMenuLayer->GetUUID(),s_pMenuLayer});
+	s_renderLayers.insert({ boost::uuids::to_string(s_pMenuLayer->GetUUID()),s_pMenuLayer});
 	EventDispatcher::RegisterEventHandle<EventType::AllRoomClose>(MainUI::RemoveAllLayer);
 }
 
@@ -82,8 +82,8 @@ void MainUI::RenderUI(bool fullScreen)
 
 void MainUI::RemoveLayer(boost::uuids::uuid uuid)
 {
-	if (s_renderLayers.find(uuid) != s_renderLayers.end()) {
-		s_renderLayers.erase(uuid);
+	if (s_renderLayers.find(boost::uuids::to_string(uuid)) != s_renderLayers.end()) {
+		s_renderLayers.erase(boost::uuids::to_string(uuid));
 		return;
 	}
 	return;
@@ -92,16 +92,19 @@ void MainUI::RemoveLayer(boost::uuids::uuid uuid)
 void MainUI::AddRenderLayer(std::shared_ptr<class RenderLayer> layer)
 {
 	auto pos = s_renderLayers.size();
-	s_renderLayers.insert({ layer->GetUUID(),layer });
+	s_renderLayers.insert({ boost::uuids::to_string(layer->GetUUID()),layer });
 	s_buildDockingSpace = true;
 	return;
 }
 
 std::shared_ptr<class RenderLayer> MainUI::GetRenderLayer(boost::uuids::uuid uuid)
 {
-	if (s_renderLayers.find(uuid) != s_renderLayers.end()) {
-		return s_renderLayers[uuid];
+	auto it = s_renderLayers.find(boost::uuids::to_string(uuid));
+	if (it != s_renderLayers.end()) {
+		return it->second;
 	}
+	LOG_DEBUG("[MainUI] Get Layer key: {}", boost::uuids::to_string(uuid));
+	assert(false && "Never should be happened");
 	return nullptr;
 }
 

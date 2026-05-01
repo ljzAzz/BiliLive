@@ -26,7 +26,9 @@ void ImGuiRenderer::InitImGui()
     ImGui::SetCurrentContext(ctx);
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-    io.IniFilename = IMGUI_INI_PATH;
+    auto curPath = GetExePath();
+    auto iniPath = curPath.concat("ImGui.ini").generic_string();
+    io.IniFilename = iniPath.c_str();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking

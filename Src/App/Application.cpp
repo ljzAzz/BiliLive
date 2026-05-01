@@ -46,9 +46,9 @@ bool App::OnRoomOpenEvent(Event* e)
 
 bool App::OnRoomCloseEvent(Event* e)
 {
-	auto uuid = static_cast<RoomCloseEvent*>(e)->GetUUID();
-	auto room = MainUI::GetRenderLayer(uuid);
 	std::jthread([=] {
+		auto uuid = static_cast<RoomCloseEvent*>(e)->GetUUID();
+		auto room = MainUI::GetRenderLayer(uuid);
 		static_cast<LiveRoom*>(room.get())->Stop();
 		Event* e = new RoomRemoveEvent(uuid);
 		EventDispatcher::Dispatch(e);

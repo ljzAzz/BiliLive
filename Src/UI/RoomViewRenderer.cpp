@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "RoomViewRenderer.h"
+#include <User/UserData.h>
 
 ImGuiDanmaku::ImGuiDanmaku()
 	:m_displayW(0)
@@ -49,7 +50,7 @@ void ImGuiDanmaku::Update(ImDrawList* dl, float dt, ImVec2 displaySize, ImVec2 p
 		if (d.speed == 0.0f) {
 			d.speed = (m_displayW + d.width) / m_durationSeconds;
 		}
-		if (!hovered && m_addTimeGap<=0.f) {
+		if (User::IsLogin()&& !hovered && m_addTimeGap<=0.f) {
 			static constexpr auto text = "+1";
 			static const auto s  = CalcTextSize(text);
 			static const auto size = ImVec2(s.x * 0.6f,s.y * 0.6f);

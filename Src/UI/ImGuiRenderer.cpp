@@ -27,7 +27,7 @@ void ImGuiRenderer::InitImGui()
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
     auto curPath = GetExePath();
-    auto iniPath = curPath.concat("ImGui.ini").generic_string();
+    auto iniPath = curPath.concat("/ImGui.ini").generic_string();
     io.IniFilename = iniPath.c_str();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls

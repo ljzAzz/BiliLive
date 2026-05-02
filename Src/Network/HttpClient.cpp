@@ -291,15 +291,17 @@ void BliveClient::SetDanmakuUrls()
 	auto rid = m_roomInfoUrl.parameters["room_id"];
 
 	nlohmann::json params;
-	params["id"] = rid;
+	params["id"] = m_roomID;
 	params["type"] = 0;
 	params["web_location"] = "444.8";
 	auto wbiSign = WBIKEY::CalcSign(params, wbi);
 	std::unordered_map<std::string, std::string> wbiSignMap;
-	for (const auto& [key, value] : wbiSign.items()) {
-		wbiSignMap[key] = value.is_string() ? value.get<std::string>() : to_string(value).c_str();
-	}
-
+	wbiSignMap.insert({ "id" ,std::to_string(m_roomID)});
+	wbiSignMap.insert({ "type" ,"0"});
+	wbiSignMap.insert({ "web_location" ,"444.8"});
+	wbiSignMap.insert({ "w_rid" ,wbiSign });
+	auto wts = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	wbiSignMap.insert({ "wts" ,std::to_string(wts) });
 	m_danmuInfoUrl.cookies = { {"SESSDATA",User::GetSessData()},{"buvid3",User::GetBuvid3()} };
 	m_danmuInfoUrl.parameters = wbiSignMap;
 
@@ -322,11 +324,16 @@ void BliveClient::SetDanmakuUrls()
 			data.clear();
 			wbiSign.clear();
 			wbiSignMap.clear();
+			UserInfo::UpdateAll();
+			auto wbi = User::GetWbiKey();
 			LOG_ERROR("[BliveClient] Failed to get danmuInfo，retry :{}", retryTime++);
 			wbiSign = WBIKEY::CalcSign(params, wbi);
-			for (const auto& [key, value] : wbiSign.items()) {
-				wbiSignMap[key] = value.is_string() ? value.get<std::string>() : to_string(value).c_str();
-			}
+			wbiSignMap.insert({ "id" ,std::to_string(m_roomID) });
+			wbiSignMap.insert({ "type" ,"0" });
+			wbiSignMap.insert({ "web_location" ,"444.8" });
+			wbiSignMap.insert({ "w_rid" ,wbiSign });
+			auto wts = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+			wbiSignMap.insert({ "wts" ,std::to_string(wts)});
 
 			m_danmuInfoUrl.cookies = { {"SESSDATA",User::GetSessData()},{"buvid3",User::GetBuvid3()} };
 			m_danmuInfoUrl.parameters = wbiSignMap;
@@ -399,7 +406,7 @@ void BliveClient::SetLiveUrls(uint64_t realID)
 void UserInfo::UpdateAll()
 {
 	UpdateBuvid();
-	Url wbiKeyUrl = Url{ .host = std::string(WbiHost),.path = std::string(WbiPath),.port = "443",.cookies = {{"SESSDATA",User::GetSessData()}} };
+	Url wbiKeyUrl = Url{ .host = std::string(WbiHost),.path = std::string(WbiPath),.port = "443",.cookies = {{"SESSDATA",User::GetSessData()}}};
 	auto res = s_networkClient.Get(wbiKeyUrl);
 	nlohmann::json data;
 	try {
@@ -423,17 +430,11 @@ void UserInfo::UpdateAll()
 		User::clear();
 		User::Save();
 	}
-	auto imgKey = nlohmann::to_string(data["data"]["wbi_img"]["img_url"]);
-	auto index = imgKey.rfind('/');
-	imgKey = imgKey.substr(index + 1, imgKey.length() - index - 1);
-	index = imgKey.find('.');
-	imgKey = imgKey.substr(0, index);
+	const std::string imgUrl = data["data"]["wbi_img"]["img_url"];
+	const std::string subUrl = data["data"]["wbi_img"]["sub_url"];
 
-	auto subKey = to_string(data["data"]["wbi_img"]["sub_url"]);
-	index = subKey.rfind('/');
-	subKey = subKey.substr(index + 1, subKey.length() - index - 1);
-	index = subKey.find('.');
-	subKey = subKey.substr(0, index);
+	std::string imgKey = imgUrl.substr(imgUrl.find("wbi/") + 4, imgUrl.find(".png") - imgUrl.find("wbi/") - 4);
+	std::string subKey = subUrl.substr(subUrl.find("wbi/") + 4, subUrl.find(".png") - subUrl.find("wbi/") - 4);
 
 	auto wbi = WBIKEY::CalcWbiKey(imgKey, subKey);
 	User::SetWbiKey(wbi);

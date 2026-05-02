@@ -19,6 +19,7 @@ namespace http = beast::http;
 namespace websocket = beast::websocket;
 using tcp = net::ip::tcp;
 
+
 class HttpClient {
 private:
 	net::io_context m_ioc;

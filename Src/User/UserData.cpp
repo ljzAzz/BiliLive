@@ -85,48 +85,50 @@ void User::Read()
     }
 }
 
-std::string WBIKEY::GetMd5Hex(const std::string& Input_str)
+std::string WBIKEY::GetMd5Hex(const std::string& inputStr)
 {
     CryptoPP::Weak1::MD5 hash;
-    std::string md5_hex;
-    CryptoPP::StringSource ss(Input_str, true,
+    std::string md5Hex;
+
+    CryptoPP::StringSource ss(inputStr, true,
         new CryptoPP::HashFilter(hash,
             new CryptoPP::HexEncoder(
-                new CryptoPP::StringSink(md5_hex)
+                new CryptoPP::StringSink(md5Hex)
             )
         )
     );
-    std::ranges::for_each(md5_hex, [](char& x) { x = std::tolower(x); });
-    return md5_hex;
+
+    std::ranges::for_each(md5Hex, [](char& x) { x = std::tolower(x); });
+    return md5Hex;
 }
 
 std::string WBIKEY::JsonToUrlEncodeStr(const nlohmann::json& Json)
 {
-    std::string encode_str;
+    std::string encodeStr;
     for (const auto& [key, value] : Json.items()) {
-        encode_str.append(key).append("=").append(cpr::util::urlEncode(value.is_string() ? value.get<std::string>() : to_string(value)).c_str()).append("&");
+        encodeStr.append(key).append("=").append(cpr::util::urlEncode(value.is_string() ? value.get<std::string>() : to_string(value))).append("&");
     }
-    encode_str.resize(encode_str.size() - 1, '\0');
-    return encode_str;
+
+    encodeStr.resize(encodeStr.size() - 1, '\0');
+    return encodeStr;
 }
 
-nlohmann::json WBIKEY::CalcSign(nlohmann::json& Params, const std::string& wbi)
+std::string WBIKEY::CalcSign(nlohmann::json Params, const std::string& wbi)
 {
     Params["wts"] = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    nlohmann::json backup = Params;
-    const std::string encode_str = JsonToUrlEncodeStr(Params).append(wbi);
-    backup["w_rid"] = GetMd5Hex(encode_str);
-    return backup;
+
+    const std::string encodeStr = JsonToUrlEncodeStr(Params).append(wbi);
+    return GetMd5Hex(encodeStr);
 }
 
 std::string WBIKEY::CalcWbiKey(const std::string& imgKey, const std::string& subKey)
 {
-    auto shuffledKey = imgKey + subKey;
-    std::string wbiKey;
-    for (auto index : WBI_KEY_INDEX_TABLE) {
-        if (index < shuffledKey.length()) {
-            wbiKey.push_back(shuffledKey[index]);
-        }
-    }
-    return wbiKey;
+    std::string raw_wbi_key_str = imgKey + subKey;
+    std::string result;
+
+    std::ranges::for_each(MIXIN_KEY_ENC_TAB_, [&result, &raw_wbi_key_str](const uint8_t x) {
+        result.push_back(raw_wbi_key_str.at(x));
+        });
+
+    return result.substr(0, 32);
 }

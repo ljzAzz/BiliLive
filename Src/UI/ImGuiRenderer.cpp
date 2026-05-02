@@ -10,7 +10,7 @@ void ImGuiRenderer::InitRenderer(WindowHandle& whandle)
     static std::once_flag flag;
     std::call_once(flag, [&]() {
 #ifdef __WINDOWS__
-        auto renderBackend = RenderBackend::CreateRenderBackend(s_renderSetting.renderBackendApi, static_cast<void*>(&whandle));
+        auto renderBackend = RenderBackend::CreateRenderBackend(s_renderSetting.renderBackendApi, reinterpret_cast<void*>(&whandle));
         s_renderBackend = std::unique_ptr<RenderBackend>(renderBackend);
 #endif
         renderBackend->SetSyncInterval(s_renderSetting.level);
@@ -23,7 +23,6 @@ void ImGuiRenderer::InitImGui()
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     auto ctx = ImGui::CreateContext();
-    ImGui::SetCurrentContext(ctx);
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
     io.IniFilename = "ImGui.ini";
@@ -31,7 +30,6 @@ void ImGuiRenderer::InitImGui()
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
-    io.ConfigInputTrickleEventQueue = true;         
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();

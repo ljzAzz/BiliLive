@@ -44,7 +44,7 @@ Dx12RenderBackend::Dx12RenderBackend(void* initData)
     ,m_d3dDevice(DX12::GetDevice())
 {
     EventDispatcher::RegisterEventHandle<EventType::WindowResize>(std::bind(&Dx12RenderBackend::ReSize, this, std::placeholders::_1));
-    m_windowHandle = reinterpret_cast<HWND>(*static_cast<std::uintptr_t*>(initData));
+    m_windowHandle = reinterpret_cast<HWND>(*reinterpret_cast<std::uintptr_t*>(initData));
     // Initialize Direct3D
     if (!CreateDeviceD3D(m_windowHandle))
     {

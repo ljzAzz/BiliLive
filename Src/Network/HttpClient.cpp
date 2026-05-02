@@ -371,7 +371,7 @@ void BliveClient::SetDanmakuUrls()
 
 void BliveClient::SetLiveUrls(uint64_t realID)
 {
-	m_roomLiveUrl.parameters = { { "cid", std::to_string(realID)}, {"qn","25000"}, {"platform","web"} };
+	m_roomLiveUrl.parameters = { { "cid", std::to_string(realID)}, {"quality","4"}, {"platform","web"} };
 	auto res = m_networkClient.Get(m_roomLiveUrl);
 
 	nlohmann::json json;

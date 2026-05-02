@@ -350,6 +350,8 @@ inline void LiveRoom::TruncateToMaxChars(std::string& str, int maxChars)
 void LiveRoom::Render(bool full) {
 	if (!m_roomInfo.liveStatus) {
 		ImGui::Begin("主播当前未开播哦", &m_open, m_windowFlags);
+		ImGui::PushID(boost::uuids::to_string(uuid).c_str());
+
 		ImVec2 videoSize = ImGui::GetContentRegionAvail();
 		ImVec2 videoMin = ImGui::GetCursorScreenPos();
 		auto dl = ImGui::GetWindowDrawList();
@@ -362,6 +364,8 @@ void LiveRoom::Render(bool full) {
 		auto scale = (videoSize.x * 0.6f) / size.x;
 		auto pos = ImVec2(videoMin.x + videoSize.x * 0.2f, videoMin.y + (videoSize.y - size.y * scale) * 0.5f);
 		dl->AddText(font, baseSize * scale, pos, IM_COL32(255, 255, 255, 255), text);
+
+		ImGui::PopID();
 		ImGui::End();
 		return;
 	}
@@ -370,8 +374,8 @@ void LiveRoom::Render(bool full) {
 	}
 	m_inputRender = false;
 	auto focus = ImGui::Begin(m_layerName.c_str(), &m_open, m_windowFlags);
-	auto id = boost::lexical_cast<std::string>(uuid);
-	ImGui::PushID(id.c_str());
+	ImGui::PushID(boost::uuids::to_string(uuid).c_str());
+
 	focus |= !ImGui::IsWindowCollapsed();
 	ImVec2 videoMin = ImGui::GetCursorScreenPos();
 	ImVec2 videoSize = ImGui::GetContentRegionAvail();

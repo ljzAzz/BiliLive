@@ -26,7 +26,7 @@ private:
 
 	static inline RenderSetting s_renderSetting;
 private:
-	static void InitImGui();
+	static void InitImGui();	
 public:
 	static void SetRenderBackendApi(RenderBackendApi api);
 	static void SetDpiScale(float scale);

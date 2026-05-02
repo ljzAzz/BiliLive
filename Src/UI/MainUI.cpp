@@ -52,32 +52,18 @@ void MainUI::Update()
 
 void MainUI::RenderUI(bool fullScreen)
 {
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
 
-	static ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking;
-	windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
-	windowFlags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-	windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+	s_dockingID = ImGui::GetID("MainUIDockSpace");
 
-	static ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(viewport->Pos);
-	ImGui::SetNextWindowSize(viewport->Size);
-	ImGui::SetNextWindowViewport(viewport->ID);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-
-	ImGui::Begin("MainUI", nullptr, windowFlags);
-	ImGui::PopStyleVar(3);
-
-	s_dockingID = ImGui::GetID("MainUI");
-	ImGui::DockSpace(s_dockingID);
 	if (s_buildDockingSpace) {
 		BuildDockingSpace();
 		s_buildDockingSpace = false;
 	}
 
+	ImGui::DockSpaceOverViewport(s_dockingID, viewport);
+
 	RenderLayer(fullScreen);
-	ImGui::End();
 }
 
 void MainUI::RemoveLayer(boost::uuids::uuid uuid)
@@ -132,6 +118,8 @@ void MenuLayer::OnImGuiRender(bool fullScreen)
 		ImGui::End();
 		return;
 	}
+	ImGui::PushID(boost::uuids::to_string(uuid).c_str());
+
 	auto size = ImGui::GetContentRegionAvail();
 	std::string login;
 	if (!User::IsLogin()) {
@@ -192,6 +180,7 @@ void MenuLayer::OnImGuiRender(bool fullScreen)
 			ImGui::SetWindowFocus("搜索");
 		}
 	}
+	ImGui::PopID();
 	ImGui::End();
 }
 
@@ -215,6 +204,8 @@ void SearchLayer::OnImGuiRender(bool fullScreen)
 			ImGui::End();
 			return;
 		}
+		ImGui::PushID(boost::uuids::to_string(uuid).c_str());
+
 		auto size = ImGui::GetWindowSize();
 		auto pos = ImGui::GetWindowPos();
 		auto fsize_1 = ImGui::CalcTextSize("输入房间号...");
@@ -237,6 +228,8 @@ void SearchLayer::OnImGuiRender(bool fullScreen)
 				m_inputBuffer.clear();
 			}
 		}
+
+		ImGui::PopID();
 		ImGui::End();
 	}
 }
@@ -261,6 +254,8 @@ void LoginLayer::OnImGuiRender(bool fullScreen)
 			ImGui::End();
 			return;
 		}
+		ImGui::PushID(boost::uuids::to_string(uuid).c_str());
+
 		auto size = ImGui::GetWindowSize();
 		auto pos = ImGui::GetWindowPos();
 		static auto io = ImGui::GetIO();
@@ -325,6 +320,7 @@ void LoginLayer::OnImGuiRender(bool fullScreen)
 		if (m_flag==3) {
 			ImGui::EndDisabled();
 		}
+		ImGui::PopID();
 		ImGui::End();
 	}
 }
@@ -533,6 +529,8 @@ void SettingLayer::OnImGuiRender(bool fullScreen)
 			ImGui::End();
 			return;
 		}
+		ImGui::PushID(boost::uuids::to_string(uuid).c_str());
+
 		if (ImGui::BeginTabBar("SettingTabs")) {
 			if (ImGui::BeginTabItem("窗口")) {
 				RenderWindowSetting(m_editSetting.windowSetting);
@@ -588,6 +586,7 @@ void SettingLayer::OnImGuiRender(bool fullScreen)
 		//if (ImGui::Button("恢复默认")) {
 		//	m_editSetting = AppSetting{};
 		//}
+		ImGui::PopID();
 		ImGui::End();
 	}
 

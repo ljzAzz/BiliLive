@@ -75,7 +75,7 @@ bool WebSocket::SSLResolve(const Url& url)
 
 void WebSocket::Write(const std::vector<uint8_t>& msg, std::function<void(boost::beast::error_code err, size_t size)> wcb)
 {
-	std::unique_lock<std::mutex>(m_mutex);
+	std::unique_lock<std::mutex> lock(m_mutex);
 	boost::beast::error_code ec;
 	try {
 		m_pWebSocketStream->write(net::buffer(msg), ec);

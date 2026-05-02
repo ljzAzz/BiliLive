@@ -118,7 +118,9 @@ bool WindowsWinodw::Resize(Event* e)
 
 void WindowsWinodw::Show()
 {
-    ::ShowWindow(reinterpret_cast<HWND>(m_windowHandle), SW_SHOWDEFAULT);
+    auto hwnd = reinterpret_cast<HWND>(m_windowHandle);
+    ::ShowWindow(hwnd, SW_SHOWDEFAULT);
+    ::UpdateWindow(hwnd);
 }
 
 void WindowsWinodw::Destroy()
@@ -158,9 +160,9 @@ bool WindowsWinodw::IsFullScreen()
 
 LRESULT WINAPI WindowsWinodw::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    //it should not be to do like this, but just do it temporarily
-    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)) {
         return true;
+    }
 
     switch (msg)
     {

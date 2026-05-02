@@ -112,11 +112,6 @@ void App::Run()
 	std::chrono::steady_clock::time_point nextTick = std::chrono::steady_clock::time_point::min();
 	bool tick = false;
 	while (m_running) {
-		now = std::chrono::steady_clock::now();
-		if (tick) {
-			nextTick = now + target;
-			tick = false;
-		}
 		m_window.PollEvents();
 		if (ImGuiRenderer::IsOccluded()) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -125,6 +120,11 @@ void App::Run()
 		s_pApp->HandleEvents(); //maybe events will close app
 		if (!m_running) {		//so here check running state
 			break;
+		}
+		now = std::chrono::steady_clock::now();
+		if (tick) {
+			nextTick = now + target;
+			tick = false;
 		}
 		if (nextTick != std::chrono::steady_clock::time_point::min() && now < nextTick) {
 			auto diff = std::chrono::duration<double>(nextTick - now).count();

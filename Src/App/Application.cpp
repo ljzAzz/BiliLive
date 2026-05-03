@@ -99,45 +99,66 @@ App::~App()
 	m_window.Destroy();
 }
 
+
 void App::Run()
 {
 	m_window.Show();
 	auto refreshRate = s_pApp->m_settings.windowSetting.appRefreshRate >
 		s_pApp->m_settings.windowSetting.refreshRate ?
 		s_pApp->m_settings.windowSetting.refreshRate : s_pApp->m_settings.windowSetting.appRefreshRate;
+	LOG_INFO("[APP] Limited refreshRate :{}", refreshRate);
 
-	auto target = std::chrono::duration_cast<std::chrono::steady_clock::duration>
-		(std::chrono::duration<double>(1.0 / refreshRate));
-	std::chrono::steady_clock::time_point now;
-	std::chrono::steady_clock::time_point nextTick = std::chrono::steady_clock::time_point::min();
 	bool tick = false;
-	while (m_running) {
+	bool open = true;
+	using Clock = std::chrono::steady_clock;
+	auto frameDuration = std::chrono::duration_cast<Clock::duration>(
+		std::chrono::duration<double>(1.0 / refreshRate));
+
+	auto nextFrame = Clock::now();
+
+	while (m_running)
+	{
+		s_pApp->HandleEvents();
+		if (!m_running) break;
+
 		m_window.PollEvents();
 		if (ImGuiRenderer::IsOccluded()) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			nextFrame = Clock::now() + frameDuration; 
 			continue;
 		}
-		s_pApp->HandleEvents(); //maybe events will close app
-		if (!m_running) {		//so here check running state
-			break;
+
+		auto now = Clock::now();
+		if (now < nextFrame) {
+			auto waitTime = nextFrame - now;
+			auto sleepTime = waitTime - std::chrono::microseconds(500);
+			if (sleepTime > std::chrono::microseconds(0))
+				std::this_thread::sleep_for(sleepTime);
 		}
-		now = std::chrono::steady_clock::now();
-		if (tick) {
-			nextTick = now + target;
-			tick = false;
+
+		while (Clock::now() < nextFrame) {
+			std::this_thread::yield();
 		}
-		if (nextTick != std::chrono::steady_clock::time_point::min() && now < nextTick) {
-			auto diff = std::chrono::duration<double>(nextTick - now).count();
-			int sleepTime = static_cast<int>(diff * 1000000 - 500);
-			if (sleepTime > 0) {
-				std::this_thread::sleep_for(std::chrono::microseconds(sleepTime));
-			}
-		}
+
 		MainUI::Update();
 		ImGuiRenderer::BeginRender();
 		MainUI::RenderUI(m_window.IsFullScreen());
+		auto io = ImGui::GetIO();
+		if (open) {
+			ImGui::ShowDemoWindow(&open);
+		}
+		ImGui::Begin("FrameRate");
+		ImGui::SameLine();
+
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+		ImGui::End();
 		ImGuiRenderer::EndRender();
 		ImGuiRenderer::SwapBuffers(m_window.GetVsync());
-		tick = true;
+
+		nextFrame += frameDuration;
+
+		if (nextFrame < Clock::now()) {
+			nextFrame = Clock::now() + frameDuration;
+		}
 	}
 }

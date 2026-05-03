@@ -178,9 +178,11 @@ LRESULT WINAPI WindowsWinodw::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
             return 0;
         break;
     case WM_DESTROY:
-        Event* e = new ApplicationCloseEvent();
-        EventDispatcher::Dispatch(e);
-        return 0;
+        {
+            Event* e = new ApplicationCloseEvent();
+            EventDispatcher::Dispatch(e);
+            return 0;
+        }
     }
 
     return ::DefWindowProcW(hWnd, msg, wParam, lParam);

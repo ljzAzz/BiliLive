@@ -1,6 +1,13 @@
 #include "stdafx.h"
 #include "Platform/Window.h"
 #include "Application.h"
+#ifdef __WINDOWS__
+#include <windows.h>
+#include <timeapi.h>
+
+#pragma comment(lib, "winmm.lib")
+#endif
+
 //#define LOG_TO_FILE
 
 int main() {
@@ -9,7 +16,9 @@ int main() {
 #else
 	LOG_INIT("logs/log.txt", Loglevel::info);
 #endif
-
+#ifdef __WINDOWS__
+	timeBeginPeriod(1);
+#endif
 
 	LOG_DEBUG("[Boost] Boost version: {}, Boost version number: {}", BOOST_LIB_VERSION, BOOST_VERSION);
 
@@ -24,5 +33,8 @@ int main() {
 	app.Run();
 	User::Save();
 	LOG_SHUTDOWN();
+#ifdef __WINDOWS__
+	timeEndPeriod(1);
+#endif
 	return 0;
 }

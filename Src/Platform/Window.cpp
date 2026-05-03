@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "Window.h"
+#ifdef __WINDOWS__
 #include "WindowsWindow.h"
-
+#endif
 Window::Window()
 	:m_windowHandle(-1)
 {

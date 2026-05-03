@@ -32,6 +32,7 @@ private:
 	void HandleEvents();
 public:
 	static App& CreateApp();
+	static float GetAppRefreshRate() { return s_pApp->m_settings.windowSetting.appRefreshRate; }
 	static AppSetting& GetSetting() { return s_pApp->m_settings; }
 	~App();
 	void Run();
